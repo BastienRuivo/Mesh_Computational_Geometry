@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/include/qt6/QtWidgets",
+                "/usr/include/qt",
+                "/usr/include/qt/QtWidgets",
+                "/usr/include/qt6",
+                "/usr/include/qt/QtCore"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/clang"
+        }
+    ],
+    "version": 4
+}
