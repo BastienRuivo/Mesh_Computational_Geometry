@@ -24,3 +24,21 @@ void MainWindow::on_SaveOff_clicked()
     ui->widget->_geomWorld._mesh.saveToOffFile();
 }
 
+
+void MainWindow::on_Wireframe_toggled(bool checked)
+{
+    ui->widget->_wireframe = checked;
+}
+
+
+void MainWindow::on_Axis_toggled(bool checked)
+{
+    ui->widget->_axis = checked;
+}
+
+
+void MainWindow::on_Pyramid_clicked()
+{
+    ui->widget->_geomWorld._mesh.initPyramide();
+}
+

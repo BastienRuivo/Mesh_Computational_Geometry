@@ -20,6 +20,12 @@ private slots:
 
     void on_SaveOff_clicked();
 
+    void on_Wireframe_toggled(bool checked);
+
+    void on_Axis_toggled(bool checked);
+
+    void on_Pyramid_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

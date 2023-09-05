@@ -20,6 +20,8 @@ public:
     void resizeGL(int width, int height);
 
     GeometricWorld _geomWorld; // The scene to be displayed
+    bool _wireframe = false; // To display the wireframe or not
+    bool _axis = true; // To display the axis or not
 
 protected:
     // Mouse Management

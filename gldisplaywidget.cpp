@@ -48,8 +48,9 @@ void GLDisplayWidget::paintGL(){
     glColor3f(0, 1 ,0);
 
     // example with a tetraedre
-    _geomWorld.drawWireFrame();
-    // _geomWorld.draw();
+    if(_axis)
+        this->_geomWorld.drawAxis();
+    _geomWorld.drawWorld(_wireframe);
 }
 
 void GLDisplayWidget::resizeGL(int width, int height){

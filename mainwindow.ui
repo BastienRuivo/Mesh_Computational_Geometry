@@ -79,6 +79,19 @@
          <string>Tetrahedre</string>
         </property>
        </widget>
+       <widget class="QPushButton" name="Pyramid">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>30</y>
+          <width>95</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Pyramid</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QGroupBox" name="Actions">
        <property name="geometry">
@@ -105,6 +118,41 @@
          <string>Save OFF</string>
         </property>
        </widget>
+      </widget>
+      <widget class="QRadioButton" name="Wireframe">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>330</y>
+         <width>121</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Wireframe</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="Axis">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>330</y>
+         <width>121</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Axis</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
       </widget>
      </widget>
     </item>
