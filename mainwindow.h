@@ -2,6 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "meshhelper.h"
+#include <chrono>
+#include <sstream>
 
 namespace Ui {
 class MainWindow;
@@ -29,6 +32,8 @@ private slots:
     void on_Queen_clicked();
 
     void on_Cube_clicked();
+
+    void on_Wireframe_2_toggled(bool checked);
 
 private:
     Ui::MainWindow *ui;

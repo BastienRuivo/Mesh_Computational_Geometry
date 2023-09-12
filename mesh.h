@@ -25,6 +25,7 @@ public:
 
 class Mesh
 {
+public:
     std::vector<Point> vertices;
     std::vector<int> vertexEnter;
     std::vector<int> adjacents;
@@ -33,20 +34,8 @@ class Mesh
     std::vector<double> colors;
 
     std::vector<bool> visited;
-
-    std::string _name;
-
-public:
     Mesh(); // Constructors automatically called to initialize a Mesh (default strategy)
     void clear();
-
-    void initTetrahedron();
-    void initPyramide();
-    void initBBox();
-
-    void saveToOffFile(const std::string & name);
-    void saveToOffFile();
-    void loadFromOff(const std::string & path);
 
     void paintAdjacents();
 
@@ -57,7 +46,7 @@ public:
     void visit(int i, int t);
     void visitAll(int i);
 
-    std::string getName();
+
 };
 
 class GeometricWorld //Generally used to create a singleton instance

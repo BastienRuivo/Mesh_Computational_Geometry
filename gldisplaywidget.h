@@ -23,7 +23,7 @@ public:
     bool _wireframe = false; // To display the wireframe or not
     bool _axis = true; // To display the axis or not
 
-    bool _visited = true;
+    bool _visited = false;
 
 protected:
     // Mouse Management

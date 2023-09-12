@@ -15,11 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     gldisplaywidget.cpp \
-    mesh.cpp
+    mesh.cpp \
+    meshhelper.cpp
 
 HEADERS  += mainwindow.h \
     gldisplaywidget.h \
-    mesh.h
+    mesh.h \
+    meshhelper.h
 
 FORMS    += mainwindow.ui
 

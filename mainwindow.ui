@@ -180,6 +180,22 @@
         <bool>false</bool>
        </property>
       </widget>
+      <widget class="QRadioButton" name="Wireframe_2">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>360</y>
+         <width>121</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>custom</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
+      </widget>
      </widget>
     </item>
    </layout>

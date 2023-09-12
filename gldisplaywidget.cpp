@@ -50,7 +50,7 @@ void GLDisplayWidget::paintGL(){
     // example with a tetraedre
     if(_axis)
         this->_geomWorld.drawAxis();
-    _geomWorld.drawWorld(_wireframe);
+    _geomWorld.drawWorld(_wireframe, _visited);
 }
 
 void GLDisplayWidget::resizeGL(int width, int height){
