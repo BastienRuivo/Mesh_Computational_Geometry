@@ -42,3 +42,15 @@ void MainWindow::on_Pyramid_clicked()
     ui->widget->_geomWorld._mesh.initPyramide();
 }
 
+
+void MainWindow::on_Queen_clicked()
+{
+    ui->widget->_geomWorld._mesh.loadFromOff("queen.off");
+}
+
+
+void MainWindow::on_Cube_clicked()
+{
+    ui->widget->_geomWorld._mesh.loadFromOff("kube.off");
+}
+

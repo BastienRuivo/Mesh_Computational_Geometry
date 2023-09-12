@@ -26,6 +26,10 @@ private slots:
 
     void on_Pyramid_clicked();
 
+    void on_Queen_clicked();
+
+    void on_Cube_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

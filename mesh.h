@@ -3,9 +3,11 @@
 
 #include <QOpenGLWidget>
 #include <vector>
+#include <map>
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 // TO MODIFY
 class Point
 {
@@ -23,24 +25,38 @@ public:
 
 class Mesh
 {
-  std::vector<Point> vertices;
-  std::vector<int> triangles;
-  std::vector<int> neighbours;
-  std::vector<double> colors;
+    std::vector<Point> vertices;
+    std::vector<int> vertexEnter;
+    std::vector<int> adjacents;
 
-  std::string _name;
+    std::vector<int> triangles;
+    std::vector<double> colors;
+
+    std::vector<bool> visited;
+
+    std::string _name;
 
 public:
     Mesh(); // Constructors automatically called to initialize a Mesh (default strategy)
     void clear();
+
     void initTetrahedron();
     void initPyramide();
     void initBBox();
+
     void saveToOffFile(const std::string & name);
     void saveToOffFile();
+    void loadFromOff(const std::string & path);
+
+    void paintAdjacents();
+
     ~Mesh(); // Destructor automatically called before a Mesh is destroyed (default strategy)
-    void drawMesh();
-    void drawMeshWireframe();
+    void drawMesh(bool useVisited);
+    void drawMeshWireframe(bool useVisited);
+
+    void visit(int i, int t);
+    void visitAll(int i);
+
     std::string getName();
 };
 
@@ -50,7 +66,7 @@ class GeometricWorld //Generally used to create a singleton instance
 public :
   GeometricWorld();
   void drawAxis();
-  void drawWorld(bool wireframed);
+  void drawWorld(bool wireframed, bool visited);
   // ** TP Can be extended with further elements;
   Mesh _mesh;
 };
