@@ -46,7 +46,42 @@ public:
     void visit(int i, int t);
     void visitAll(int i);
 
+    class VertexFacesIterator
+    {
+        Mesh * M;
+        int vertex;
+        int face;
+        int firstFace;
+        int previousFace;
+    public:
 
+        VertexFacesIterator(Mesh * m, int vertex, int faceIndex = -1, int firstFace = -1);
+        bool operator!=(const VertexFacesIterator& other) const;
+        VertexFacesIterator& operator++();
+        int operator*() const;
+    };
+
+    VertexFacesIterator begin(int vertex);
+
+    VertexFacesIterator end(int vertex);
+
+    class VertexIterator {
+    private:
+        int current;
+        Mesh * m;
+    public:
+        VertexIterator(Mesh * M, int current);
+        bool operator!=(const VertexIterator& other) const;
+        VertexIterator& operator++();
+        int operator*() const;
+        Point& operator*();
+
+        VertexFacesIterator beginFaceIterator();
+        VertexFacesIterator endFaceIterator();
+    };
+
+    VertexIterator begin();
+    VertexIterator end();
 };
 
 class GeometricWorld //Generally used to create a singleton instance

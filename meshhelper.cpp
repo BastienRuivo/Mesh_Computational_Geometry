@@ -23,7 +23,7 @@ void MeshHelper::saveToOffFile(const Mesh & mesh, const std::string & name) {
 
     for (size_t i = 0; i < mesh.triangles.size(); i+=3)
     {
-        offFile << "3 " << mesh.triangles[i] << " " << mesh.triangles[i+1] << " " << mesh.triangles[i+2] << " " << mesh.colors[i] << " " << mesh.colors[i+1] << " " << mesh.colors[i+2] << std::endl;
+        offFile << "3 " << mesh.triangles[i] << " " << mesh.triangles[i+1] << " " << mesh.triangles[i+2] << std::endl;
     }
 
     // close the file
@@ -94,26 +94,19 @@ void MeshHelper::loadFromOff(Mesh & mesh, const std::string & path) {
         //std::cout << "SIZE :: " << triangles.size() << std::endl;
         //std::cout << triangles[triangles.size()-3] << " " << triangles[triangles.size()-2] << " " << triangles[triangles.size()-1] << std::endl;
     }
-    //    float t = 0.0;
-    //    int i = 0;
-    while(mesh.colors.size() < mesh.triangles.size()) {
-        mesh.colors.push_back(rand()%255 / 255.f);
-        //        if(i == 2) {
-        //            i = 0;
-        //            t += 0.0001;
-        //        } else {
-        //            i++;
-        //        }
+
+    if(mesh.colors.size() != mesh.triangles.size()) {
+        mesh.colors.resize(mesh.triangles.size());
+        for(int i = 0; i < mesh.colors.size(); i+=3) {
+            float c = (float)(i + 1) / (mesh.triangles.size());
+            mesh.colors[i] = c;
+            mesh.colors[i+1] = c;
+            mesh.colors[i+2] = c;
+        }
     }
 
     mesh.paintAdjacents();
     mesh.visitAll(0);
-}
-
-Mesh & MeshHelper::loadFromOff(const std::string & path) {
-    Mesh mesh;
-    loadFromOff(mesh, path);
-    return mesh;
 }
 
 void MeshHelper::generatePyramide() {
@@ -194,47 +187,25 @@ void MeshHelper::generateTetrahedron() {
     Mesh mesh;
     mesh.clear();
     mesh.vertices.push_back(Point(0,0,0));
-    mesh.vertices.push_back(Point(1,0,0));
     mesh.vertices.push_back(Point(0,0,1));
-    mesh.vertices.push_back(Point(0,1,0));
+    mesh.vertices.push_back(Point(1,0,1));
+    mesh.vertices.push_back(Point(0.5,1,0.5));
 
-    //FACE
-
-    //FACE 0
     mesh.triangles.push_back(0);
     mesh.triangles.push_back(1);
     mesh.triangles.push_back(2);
 
-    mesh.colors.push_back(1.0);
-    mesh.colors.push_back(0.0);
-    mesh.colors.push_back(0.0);
-
-    //FACE 1
-    mesh.triangles.push_back(2);
+    mesh.triangles.push_back(0);
     mesh.triangles.push_back(1);
     mesh.triangles.push_back(3);
 
-    mesh.colors.push_back(0.0);
-    mesh.colors.push_back(1.0);
-    mesh.colors.push_back(0.0);
-
-    //FACE 2
     mesh.triangles.push_back(0);
+    mesh.triangles.push_back(3);
     mesh.triangles.push_back(2);
-    mesh.triangles.push_back(3);
 
-    mesh.colors.push_back(0.0);
-    mesh.colors.push_back(0.0);
-    mesh.colors.push_back(1.0);
-
-    //FACE 3
-    mesh.triangles.push_back(0);
-    mesh.triangles.push_back(3);
     mesh.triangles.push_back(1);
-
-    mesh.colors.push_back(1.0);
-    mesh.colors.push_back(1.0);
-    mesh.colors.push_back(0.0);
+    mesh.triangles.push_back(3);
+    mesh.triangles.push_back(2);
 
     saveToOffFile(mesh, "Tetrahedron");
 }

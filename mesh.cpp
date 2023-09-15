@@ -50,8 +50,10 @@ Mesh::Mesh() {
 void Mesh::clear() {
     vertices.clear();
     vertexEnter.clear();
+
     triangles.clear();
     colors.clear();
+
     adjacents.clear();
     visited.clear();
 }
@@ -102,14 +104,13 @@ void Mesh::paintAdjacents() {
         }
     }
 
+    for (int var = 0; var < adjacents.size(); var+=3) {
+        std::cout << "for triangle [" << triangles[var] << " " << triangles[var+1] << " " << triangles[var+2] << "] :: [" << adjacents[var] << " " << adjacents[var+1] << " " << adjacents[var+2] << "]" << std::endl;
+    }
+
     std::cout << "Number of edges : " << map.size() << std::endl;
 
     visited.resize(triangles.size()/3, false);
-
-//    for (int t = 0; t < triangles.size(); t+=3) {
-//        std::cout << "triangle["<< t/3 << "] = [" << adjacents[t] << ", " << adjacents[t+1] << ", " << adjacents[t+2] << "] "<< std::endl;
-//    }
-
 }
 
 Mesh::~Mesh() {
@@ -122,6 +123,7 @@ void Mesh::drawMesh(bool useVisited) {
     {
         if(!useVisited || visited[i/3]) {
             if(i % 3 == 0) {
+                glEnd();
                 glBegin(GL_TRIANGLES);
                 glColor3f(colors[i], colors[i+1], colors[i+2]);
             }
@@ -137,6 +139,7 @@ void Mesh::drawMeshWireframe(bool useVisited) {
     {
         if(!useVisited || visited[i/3]) {
             if(i % 3 == 0) {
+                glEnd();
                 glBegin(GL_LINE_STRIP);
                 glColor3f(colors[i], colors[i+1], colors[i+2]);
             }
@@ -173,3 +176,96 @@ void Mesh::visit(int pointToVisit, int triangleToVisit) {
         }
     }
 }
+
+Mesh::VertexFacesIterator::VertexFacesIterator(Mesh * m, int vertex, int faceIndex, int firstFace) {
+    M = m;
+    this->vertex = vertex;
+    this->face = faceIndex;
+    this->firstFace = firstFace;
+}
+
+bool Mesh::VertexFacesIterator::operator!=(const VertexFacesIterator& other) const {
+    return M != other.M || vertex != other.vertex || face != other.face || firstFace != other.firstFace;
+}
+
+Mesh::VertexFacesIterator& Mesh::VertexFacesIterator::operator++() {
+    if(firstFace == -1) {
+        firstFace = face;
+    }
+
+    int localVertexIndex = -1;
+    for(int i = 0; i < 3; i++) {
+        if(M->triangles[face*3 + i] == vertex) {
+            localVertexIndex = i;
+            break;
+        }
+    }
+
+    //std::cout << "for vertex " << vertex << " and face " << face << " localVertexIndex is " << localVertexIndex << std::endl;
+    int nFace;
+    if(previousFace == -1) {
+        previousFace = face;
+        nFace = M->adjacents[face * 3 + ((localVertexIndex + 2) % 3)];
+    } else {
+        nFace = M->adjacents[face * 3 + ((localVertexIndex + 2) % 3)];
+        if(nFace == previousFace) {
+            nFace = M->adjacents[face * 3 + ((localVertexIndex + 1) % 3)];
+        }
+        previousFace = face;
+    }
+
+    face = nFace;
+
+    return *this;
+}
+
+int Mesh::VertexFacesIterator::operator*() const  {
+    return face;
+}
+
+Mesh::VertexFacesIterator Mesh::begin(int vertex) {
+    return VertexFacesIterator(this, vertex, this->vertexEnter[vertex], -1);
+}
+
+Mesh::VertexFacesIterator Mesh::end(int vertex) {
+    return VertexFacesIterator(this, vertex, this->vertexEnter[vertex], this->vertexEnter[vertex]);
+}
+
+Mesh::VertexIterator::VertexIterator(Mesh * m, int current) {
+    this->current = current;
+    this->m = m;
+}
+
+bool Mesh::VertexIterator::operator!=(const Mesh::VertexIterator & other) const {
+    return other.current != this->current;
+}
+
+Mesh::VertexIterator& Mesh::VertexIterator::operator++() {
+    this->current++;
+    return *this;
+}
+
+int Mesh::VertexIterator::operator*() const {
+    return this->current;
+}
+
+Point& Mesh::VertexIterator::operator*() {
+    return m->vertices[this->current];
+}
+
+Mesh::VertexFacesIterator Mesh::VertexIterator::beginFaceIterator() {
+    return m->begin(this->current);
+}
+
+Mesh::VertexFacesIterator Mesh::VertexIterator::endFaceIterator() {
+    return m->end(this->current);
+}
+
+Mesh::VertexIterator Mesh::begin() {
+    return VertexIterator(this, 0);
+}
+
+Mesh::VertexIterator Mesh::end() {
+    return VertexIterator(this, vertices.size());
+}
+

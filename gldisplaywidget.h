@@ -24,6 +24,7 @@ public:
     bool _axis = true; // To display the axis or not
 
     bool _visited = false;
+    int _circularValue = 0;
 
 protected:
     // Mouse Management

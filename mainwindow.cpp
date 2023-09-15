@@ -65,3 +65,23 @@ void MainWindow::on_Wireframe_2_toggled(bool checked)
     ui->widget->_visited = checked;
 }
 
+
+void MainWindow::on_CircularValue_valueChanged(int v)
+{
+    ui->widget->_circularValue = v;
+}
+
+
+void MainWindow::on_Circular_clicked()
+{
+    auto & mesh = ui->widget->_geomWorld._mesh;
+
+    int v = ui->widget->_circularValue;
+    std::cout << "iterating on " << v << std::endl;
+
+    for(Mesh::VertexFacesIterator it = mesh.begin(v); it != mesh.end(v); ++it) {
+        int face = *it;
+        std::cout << "Face : " << face << std::endl;
+    }
+}
+

@@ -144,6 +144,19 @@
          <string>Save OFF</string>
         </property>
        </widget>
+       <widget class="QPushButton" name="Circular">
+        <property name="geometry">
+         <rect>
+          <x>120</x>
+          <y>30</y>
+          <width>95</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Circular</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QRadioButton" name="Wireframe">
        <property name="geometry">
@@ -194,6 +207,29 @@
        </property>
        <property name="autoExclusive">
         <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="CircularValue">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>400</y>
+         <width>50</width>
+         <height>22</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>410</y>
+         <width>78</width>
+         <height>13</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Sommet</string>
        </property>
       </widget>
      </widget>
