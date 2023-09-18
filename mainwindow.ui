@@ -193,45 +193,6 @@
         <bool>false</bool>
        </property>
       </widget>
-      <widget class="QRadioButton" name="Wireframe_2">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>360</y>
-         <width>121</width>
-         <height>19</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>custom</string>
-       </property>
-       <property name="autoExclusive">
-        <bool>false</bool>
-       </property>
-      </widget>
-      <widget class="QSpinBox" name="CircularValue">
-       <property name="geometry">
-        <rect>
-         <x>100</x>
-         <y>400</y>
-         <width>50</width>
-         <height>22</height>
-        </rect>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>410</y>
-         <width>78</width>
-         <height>13</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>Sommet</string>
-       </property>
-      </widget>
      </widget>
     </item>
    </layout>

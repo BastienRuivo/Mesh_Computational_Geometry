@@ -26,13 +26,13 @@ void MainWindow::on_SaveOff_clicked()
 
 void MainWindow::on_Wireframe_toggled(bool checked)
 {
-    ui->widget->_wireframe = checked;
+    ui->widget->param.setWireframe(checked);
 }
 
 
 void MainWindow::on_Axis_toggled(bool checked)
 {
-    ui->widget->_axis = checked;
+    ui->widget->param.setAxis(checked);
 }
 
 
@@ -60,28 +60,18 @@ void MainWindow::on_Tetra_clicked()
     MeshHelper::loadFromOff(ui->widget->_geomWorld._mesh, "Tetrahedron.off");
 }
 
-void MainWindow::on_Wireframe_2_toggled(bool checked)
-{
-    ui->widget->_visited = checked;
-}
-
-
-void MainWindow::on_CircularValue_valueChanged(int v)
-{
-    ui->widget->_circularValue = v;
-}
-
-
 void MainWindow::on_Circular_clicked()
 {
-    auto & mesh = ui->widget->_geomWorld._mesh;
+    auto & m = ui->widget->_geomWorld._mesh;
 
-    int v = ui->widget->_circularValue;
-    std::cout << "iterating on " << v << std::endl;
-
-    for(Mesh::VertexFacesIterator it = mesh.begin(v); it != mesh.end(v); ++it) {
-        int face = *it;
-        std::cout << "Face : " << face << std::endl;
+    for (Mesh::VertexIterator it = m.begin(); it != m.end(); ++it) {
+        int v = *it;
+        std::cout << "Vertex[" << v << "] : [";
+        for (Mesh::CirculatorFacesIterator itf = it.beginFaceIterator(); itf != it.endFaceIterator(); ++itf) {
+            int f = *itf;
+            std::cout << f << " ";
+        }
+        std::cout << "]" << std::endl;
     }
 }
 

@@ -33,10 +33,6 @@ private slots:
 
     void on_Cube_clicked();
 
-    void on_Wireframe_2_toggled(bool checked);
-
-    void on_CircularValue_valueChanged(int arg1);
-
     void on_Circular_clicked();
 
 private:

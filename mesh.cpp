@@ -17,11 +17,11 @@ void glPointDraw(const Point & p) {
 }
 
 //Example with a bBox
-void GeometricWorld::drawWorld(bool wireframed, bool visited) {
-    if(wireframed) {
-        _mesh.drawMeshWireframe(visited);
+void GeometricWorld::drawWorld(const Parameters & param) {
+    if(param.wireframe()) {
+        _mesh.draw(GL_LINE_STRIP);
     } else {
-        _mesh.drawMesh(visited);
+        _mesh.draw(GL_TRIANGLES);
     }
 }
 
@@ -117,36 +117,16 @@ Mesh::~Mesh() {
     // Destructor automatically called before a Mesh is destroyed (default strategy)
 }
 
-void Mesh::drawMesh(bool useVisited) {
-
-    for (size_t i = 0; i < triangles.size(); i++)
+void Mesh::draw(GLuint primitive) {
+    for (size_t i = 0; i < triangles.size(); i+=3)
     {
-        if(!useVisited || visited[i/3]) {
-            if(i % 3 == 0) {
-                glEnd();
-                glBegin(GL_TRIANGLES);
-                glColor3f(colors[i], colors[i+1], colors[i+2]);
-            }
-            glPointDraw(vertices[triangles[i]]);
-        }
+        glBegin(primitive);
+        glColor3f(colors[i], colors[i+1], colors[i+2]);
+        glPointDraw(vertices[triangles[i]]);
+        glPointDraw(vertices[triangles[i+1]]);
+        glPointDraw(vertices[triangles[i+2]]);
+        glEnd();
     }
-    glEnd();
-}
-
-void Mesh::drawMeshWireframe(bool useVisited) {
-
-    for (size_t i = 0; i < triangles.size(); i++)
-    {
-        if(!useVisited || visited[i/3]) {
-            if(i % 3 == 0) {
-                glEnd();
-                glBegin(GL_LINE_STRIP);
-                glColor3f(colors[i], colors[i+1], colors[i+2]);
-            }
-            glPointDraw(vertices[triangles[i]]);
-        }
-    }
-    glEnd();
 }
 
 void Mesh::visitAll(int pointToVisit) {
@@ -177,18 +157,18 @@ void Mesh::visit(int pointToVisit, int triangleToVisit) {
     }
 }
 
-Mesh::VertexFacesIterator::VertexFacesIterator(Mesh * m, int vertex, int faceIndex, int firstFace) {
+Mesh::CirculatorFacesIterator::CirculatorFacesIterator(Mesh * m, int vertex, int faceIndex, int firstFace) {
     M = m;
     this->vertex = vertex;
     this->face = faceIndex;
     this->firstFace = firstFace;
 }
 
-bool Mesh::VertexFacesIterator::operator!=(const VertexFacesIterator& other) const {
+bool Mesh::CirculatorFacesIterator::operator!=(const CirculatorFacesIterator& other) const {
     return M != other.M || vertex != other.vertex || face != other.face || firstFace != other.firstFace;
 }
 
-Mesh::VertexFacesIterator& Mesh::VertexFacesIterator::operator++() {
+Mesh::CirculatorFacesIterator& Mesh::CirculatorFacesIterator::operator++() {
     if(firstFace == -1) {
         firstFace = face;
     }
@@ -219,16 +199,16 @@ Mesh::VertexFacesIterator& Mesh::VertexFacesIterator::operator++() {
     return *this;
 }
 
-int Mesh::VertexFacesIterator::operator*() const  {
+int Mesh::CirculatorFacesIterator::operator*() const  {
     return face;
 }
 
-Mesh::VertexFacesIterator Mesh::begin(int vertex) {
-    return VertexFacesIterator(this, vertex, this->vertexEnter[vertex], -1);
+Mesh::CirculatorFacesIterator Mesh::begin(int vertex) {
+    return CirculatorFacesIterator(this, vertex, this->vertexEnter[vertex], -1);
 }
 
-Mesh::VertexFacesIterator Mesh::end(int vertex) {
-    return VertexFacesIterator(this, vertex, this->vertexEnter[vertex], this->vertexEnter[vertex]);
+Mesh::CirculatorFacesIterator Mesh::end(int vertex) {
+    return CirculatorFacesIterator(this, vertex, this->vertexEnter[vertex], this->vertexEnter[vertex]);
 }
 
 Mesh::VertexIterator::VertexIterator(Mesh * m, int current) {
@@ -249,15 +229,11 @@ int Mesh::VertexIterator::operator*() const {
     return this->current;
 }
 
-Point& Mesh::VertexIterator::operator*() {
-    return m->vertices[this->current];
-}
-
-Mesh::VertexFacesIterator Mesh::VertexIterator::beginFaceIterator() {
+Mesh::CirculatorFacesIterator Mesh::VertexIterator::beginFaceIterator() {
     return m->begin(this->current);
 }
 
-Mesh::VertexFacesIterator Mesh::VertexIterator::endFaceIterator() {
+Mesh::CirculatorFacesIterator Mesh::VertexIterator::endFaceIterator() {
     return m->end(this->current);
 }
 
@@ -268,4 +244,3 @@ Mesh::VertexIterator Mesh::begin() {
 Mesh::VertexIterator Mesh::end() {
     return VertexIterator(this, vertices.size());
 }
-

@@ -16,12 +16,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     gldisplaywidget.cpp \
     mesh.cpp \
-    meshhelper.cpp
+    meshhelper.cpp \
+    parameters.cpp
 
 HEADERS  += mainwindow.h \
     gldisplaywidget.h \
     mesh.h \
-    meshhelper.h
+    meshhelper.h \
+    parameters.h
 
 FORMS    += mainwindow.ui
 

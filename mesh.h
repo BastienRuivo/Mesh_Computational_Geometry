@@ -8,6 +8,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
+#include "parameters.h"
 // TO MODIFY
 class Point
 {
@@ -40,13 +42,12 @@ public:
     void paintAdjacents();
 
     ~Mesh(); // Destructor automatically called before a Mesh is destroyed (default strategy)
-    void drawMesh(bool useVisited);
-    void drawMeshWireframe(bool useVisited);
+    void draw(GLuint primitive);
 
     void visit(int i, int t);
     void visitAll(int i);
 
-    class VertexFacesIterator
+    class CirculatorFacesIterator
     {
         Mesh * M;
         int vertex;
@@ -55,15 +56,14 @@ public:
         int previousFace;
     public:
 
-        VertexFacesIterator(Mesh * m, int vertex, int faceIndex = -1, int firstFace = -1);
-        bool operator!=(const VertexFacesIterator& other) const;
-        VertexFacesIterator& operator++();
+        CirculatorFacesIterator(Mesh * m, int vertex, int faceIndex = -1, int firstFace = -1);
+        bool operator!=(const CirculatorFacesIterator& other) const;
+        CirculatorFacesIterator& operator++();
         int operator*() const;
     };
 
-    VertexFacesIterator begin(int vertex);
-
-    VertexFacesIterator end(int vertex);
+    CirculatorFacesIterator begin(int vertex);
+    CirculatorFacesIterator end(int vertex);
 
     class VertexIterator {
     private:
@@ -74,14 +74,28 @@ public:
         bool operator!=(const VertexIterator& other) const;
         VertexIterator& operator++();
         int operator*() const;
-        Point& operator*();
 
-        VertexFacesIterator beginFaceIterator();
-        VertexFacesIterator endFaceIterator();
+        CirculatorFacesIterator beginFaceIterator();
+        CirculatorFacesIterator endFaceIterator();
     };
 
     VertexIterator begin();
     VertexIterator end();
+
+    class FacesIterator {
+    private:
+        int current;
+        Mesh * m;
+    public:
+        FacesIterator(Mesh * M, int current);
+        bool operator!=(const FacesIterator& other) const;
+        FacesIterator& operator++();
+        int operator*() const;
+
+        CirculatorFacesIterator beginFaceIterator();
+        CirculatorFacesIterator endFaceIterator();
+    };
+
 };
 
 class GeometricWorld //Generally used to create a singleton instance
@@ -90,7 +104,7 @@ class GeometricWorld //Generally used to create a singleton instance
 public :
   GeometricWorld();
   void drawAxis();
-  void drawWorld(bool wireframed, bool visited);
+  void drawWorld(const Parameters & param);
   // ** TP Can be extended with further elements;
   Mesh _mesh;
 };

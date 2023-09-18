@@ -9,6 +9,7 @@
 #include <QtWidgets>
 #include <QTimer>
 #include "mesh.h"  // Model
+#include "parameters.h"
 
 class GLDisplayWidget : public QOpenGLWidget
 {
@@ -20,11 +21,8 @@ public:
     void resizeGL(int width, int height);
 
     GeometricWorld _geomWorld; // The scene to be displayed
-    bool _wireframe = false; // To display the wireframe or not
-    bool _axis = true; // To display the axis or not
 
-    bool _visited = false;
-    int _circularValue = 0;
+    Parameters param = Parameters(false, true);
 
 protected:
     // Mouse Management
