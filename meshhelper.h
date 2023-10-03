@@ -16,6 +16,7 @@ public:
 
     static void generatePyramide();
     static void generateTetrahedron();
+    static void generateCircle();
 };
 
 #endif // MESHHELPER_H

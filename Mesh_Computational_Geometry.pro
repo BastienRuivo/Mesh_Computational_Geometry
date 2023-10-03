@@ -15,12 +15,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     gldisplaywidget.cpp \
+    mathhelper.cpp \
     mesh.cpp \
     meshhelper.cpp \
     parameters.cpp
 
 HEADERS  += mainwindow.h \
     gldisplaywidget.h \
+    mathhelper.h \
     mesh.h \
     meshhelper.h \
     parameters.h

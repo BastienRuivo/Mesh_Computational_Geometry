@@ -35,6 +35,8 @@ private slots:
 
     void on_Circular_clicked();
 
+    void on_Circle_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -18,7 +18,7 @@ void MeshHelper::saveToOffFile(const Mesh & mesh, const std::string & name) {
 
     for (size_t i = 0; i < mesh.vertices.size(); i++)
     {
-        offFile << mesh.vertices[i]._x << " " << mesh.vertices[i]._y << " " << mesh.vertices[i]._z << std::endl;
+        offFile << mesh.vertices[i].x << " " << mesh.vertices[i].y << " " << mesh.vertices[i].z << std::endl;
     }
 
     for (size_t i = 0; i < mesh.triangles.size(); i+=3)
@@ -58,7 +58,7 @@ void MeshHelper::loadFromOff(Mesh & mesh, const std::string & path) {
     for(int i = 0; i < nbVertices; i++) {
         double x, y, z;
         offFile >> x >> y >> z;
-        mesh.vertices.push_back(Point(x, y, z));
+        mesh.vertices.push_back(vec3(x, y, z));
     }
 
     std::string line;
@@ -115,13 +115,13 @@ void MeshHelper::generatePyramide() {
 
     mesh.clear();
 
-    mesh.vertices.push_back(Point(0,0,0));
-    mesh.vertices.push_back(Point(1,0,0));
-    mesh.vertices.push_back(Point(0,0,1));
-    mesh.vertices.push_back(Point(1,0,1));
+    mesh.vertices.push_back(vec3(0,0,0));
+    mesh.vertices.push_back(vec3(1,0,0));
+    mesh.vertices.push_back(vec3(0,0,1));
+    mesh.vertices.push_back(vec3(1,0,1));
 
     //SOMMET
-    mesh.vertices.push_back(Point(0.5,1,0.5));
+    mesh.vertices.push_back(vec3(0.5,1,0.5));
 
     //FACE
 
@@ -186,26 +186,32 @@ void MeshHelper::generatePyramide() {
 void MeshHelper::generateTetrahedron() {
     Mesh mesh;
     mesh.clear();
-    mesh.vertices.push_back(Point(0,0,0));
-    mesh.vertices.push_back(Point(0,0,1));
-    mesh.vertices.push_back(Point(1,0,1));
-    mesh.vertices.push_back(Point(0.5,1,0.5));
+    mesh.vertices.push_back(vec3(0,0,0));
+    mesh.vertices.push_back(vec3(0,0,1));
+    mesh.vertices.push_back(vec3(1,0,1));
+    mesh.vertices.push_back(vec3(0.5,1,0.5));
 
+    //Base
     mesh.triangles.push_back(0);
+    mesh.triangles.push_back(2);
     mesh.triangles.push_back(1);
+
+    mesh.triangles.push_back(1);
+    mesh.triangles.push_back(2);
+    mesh.triangles.push_back(3);
+
+    mesh.triangles.push_back(3);
+    mesh.triangles.push_back(0);
     mesh.triangles.push_back(2);
 
     mesh.triangles.push_back(0);
+    mesh.triangles.push_back(3);
     mesh.triangles.push_back(1);
-    mesh.triangles.push_back(3);
 
-    mesh.triangles.push_back(0);
-    mesh.triangles.push_back(3);
-    mesh.triangles.push_back(2);
 
-    mesh.triangles.push_back(1);
-    mesh.triangles.push_back(3);
-    mesh.triangles.push_back(2);
+
+
+
 
     saveToOffFile(mesh, "Tetrahedron");
 }
@@ -216,3 +222,28 @@ bool MeshHelper::offExist(const std::string & name) {
     std::ifstream offFile(name.c_str() + std::string(".off"));
     return offFile.is_open();
 }
+
+void MeshHelper::generateCircle() {
+    Mesh mesh;
+    mesh.clear();
+
+    int nbPoints = 60;
+
+    float angle = 360.f / nbPoints;
+
+    vec3 center(0,0,0);
+
+    for(int i = 0; i < nbPoints; i++) {
+        float rad = angle * i * M_PI / 180.f;
+        mesh.vertices.push_back(vec3(cos(rad), 0, sin(rad)));
+    }
+
+    for(int i = 0; i < nbPoints - 2; i++) {
+        mesh.triangles.push_back(0);
+        mesh.triangles.push_back(i+1);
+        mesh.triangles.push_back(i+2);
+    }
+
+    saveToOffFile(mesh, "Circle");
+}
+

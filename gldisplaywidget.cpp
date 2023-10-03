@@ -93,5 +93,6 @@ void GLDisplayWidget::wheelEvent(QWheelEvent *event) {
     if (!numDegrees.isNull())
     {
       _Z = (numDegrees.x() > 0 || numDegrees.y() > 0) ? _Z + stepZoom : _Z - stepZoom;
+        if(_Z > 6) _Z = 6;
     }
 }

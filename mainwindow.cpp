@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <chrono>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -62,16 +63,31 @@ void MainWindow::on_Tetra_clicked()
 
 void MainWindow::on_Circular_clicked()
 {
+    auto now = std::chrono::system_clock::now();
     auto & m = ui->widget->_geomWorld._mesh;
 
-    for (Mesh::VertexIterator it = m.begin(); it != m.end(); ++it) {
+    for (auto it = m.beginVertexIterator(); it != m.endVertexIterator(); ++it) {
         int v = *it;
-        std::cout << "Vertex[" << v << "] : [";
-        for (Mesh::CirculatorFacesIterator itf = it.beginFaceIterator(); itf != it.endFaceIterator(); ++itf) {
-            int f = *itf;
-            std::cout << f << " ";
-        }
-        std::cout << "]" << std::endl;
+
+        vec3 l = m.laplacian(v);
+
+        m.colors[3*v] =  l.x;
+        m.colors[3*v+1] = l.y;
+        m.colors[3*v+2] = l.z;
     }
+
+
+
+    auto end = std::chrono::system_clock::now();
+
+    std::chrono::duration<double> elapsed_seconds = end-now;
+    std::cout << "elapsed time: " << elapsed_seconds.count() * 1000 << "ms for " << m.triangles.size() << " tri" << std::endl;
+}
+
+
+void MainWindow::on_Circle_clicked()
+{
+    auto & m = ui->widget->_geomWorld._mesh;
+    m.flipEdge(0, 6516);
 }
 

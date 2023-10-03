@@ -10,17 +10,9 @@
 #include <sstream>
 
 #include "parameters.h"
+#include "mathhelper.h"
 // TO MODIFY
-class Point
-{
-public:
-    double _x;
-    double _y;
-    double _z;
 
-    Point():_x(),_y(),_z() {}
-    Point(float x_, float y_, float z_):_x(x_),_y(y_),_z(z_) {}
-};
 
 
 //** TP : TO MODIFY
@@ -28,7 +20,7 @@ public:
 class Mesh
 {
 public:
-    std::vector<Point> vertices;
+    std::vector<vec3> vertices;
     std::vector<int> vertexEnter;
     std::vector<int> adjacents;
 
@@ -47,6 +39,92 @@ public:
     void visit(int i, int t);
     void visitAll(int i);
 
+    int localIndex(int vertex, int face) {
+        for (int var = 0; var < 3; ++var) {
+            if(triangles[face*3 + var] == vertex) {
+                return var;
+            }
+        }
+        return -1;
+    }
+
+    int findOppositePoint(int t0, int t1) {
+        for (int v = 0; v < 3; ++v) {
+            if(adjacents[t0 * 3 + v] == t1) {
+                return v;
+            }
+        }
+        return -1;
+    }
+
+    int thirdIndex(int vi, int vj, int face) {
+        int li = localIndex(vi, face);
+        int lj = localIndex(vj, face);
+        return 3 - (li + lj);
+    }
+
+    // take a vertex and a function as parameter and return the laplacian of the vertex
+    vec3 laplacian(int vi);
+
+    void addPointToTriangle(const vec3 & p, int triangleIndex);
+    void addPoint(const vec3 & p);
+    int findTriangle(const vec3 & p);
+
+    void flipEdge(int v1, int v2) {
+        int v1_opposite = -1;
+        int v2_opposite = -1;
+        int local_op_v1 = -1;
+        int local_op_v2 = -1;
+
+        local_op_v1 = findOppositePoint(v1, v2);
+        local_op_v2 = findOppositePoint(v2, v1);
+
+        if(local_op_v1 == -1 || local_op_v2 == -1) {
+            std::cout << "Edge not found" << std::endl;
+            return;
+        }
+
+        v1_opposite = triangles[v1 * 3 + local_op_v1];
+        v2_opposite = triangles[v2 * 3 + local_op_v2];
+
+        local_op_v2 = localIndex(v2_opposite, v2);
+        triangles[v1 * 3 + (local_op_v1 + 2) % 3] = v2_opposite;
+        triangles[v2 * 3 + (local_op_v2 + 2) % 3] = v1_opposite;
+
+        int update = adjacents[v2 * 3 + (local_op_v2 + 1) % 3];
+        int lupdate_op = findOppositePoint(update, v2);
+        adjacents[update * 3 + lupdate_op] = v1;
+
+
+        update = adjacents[v1 + (local_op_v1 + 1) % 3];
+        lupdate_op = findOppositePoint(update, v1);
+        adjacents[update * 3 + lupdate_op] = v2;
+
+
+
+
+        adjacents[v1 * 3 + local_op_v1] = adjacents[v2 * 3 + (local_op_v2 + 1) % 3];
+        adjacents[v2 * 3 + local_op_v2] = adjacents[v1 * 3 + (local_op_v1 + 1) % 3];
+
+        adjacents[v1 * 3 + (local_op_v1 + 1) % 3] = v2;
+        adjacents[v2 * 3 + (local_op_v2 + 1) % 3] = v1;
+
+
+        // dont touche opposite + 2 on adjacents (see diagram)
+
+        std::cout << std::endl << "After" << std::endl;
+        std::cout << "v1 :: " << v1 << " [ " << triangles[v1 * 3] << ", " << triangles[v1 * 3 + 1] << ", " << triangles[v1 * 3 + 2] << "]" << std::endl;
+        std::cout << "adjacent v1 :: " << v1 << " [" << adjacents[v1 * 3] << ", " << adjacents[v1 * 3 + 1] << ", " << adjacents[v1 * 3 + 2] << "]" << std::endl;
+        std::cout << "v2 :: " << v2 << " [ " << triangles[v2 * 3] << ", " << triangles[v2 * 3 + 1] << ", " << triangles[v2 * 3 + 2] << "]" << std::endl;
+        std::cout << "adjacent v2 :: " << v2 << " [" << adjacents[v2 * 3] << ", " << adjacents[v2 * 3 + 1] << ", " << adjacents[v2 * 3 + 2] << "]" << std::endl;
+
+
+
+
+
+
+    }
+
     class CirculatorFacesIterator
     {
         Mesh * M;
@@ -62,8 +140,29 @@ public:
         int operator*() const;
     };
 
-    CirculatorFacesIterator begin(int vertex);
-    CirculatorFacesIterator end(int vertex);
+    CirculatorFacesIterator beginCirculatorFacesIterator(int vertex);
+    CirculatorFacesIterator endCirculatorFacesIterator(int vertex);
+
+    class CirculatorVertexIterator
+    {
+        Mesh * M;
+        int vertex;
+        int face;
+        int firstFace;
+        int previousFace;
+    public:
+
+        CirculatorVertexIterator(Mesh * m, int vertex, int faceIndex = -1, int firstFace = -1);
+        bool operator!=(const CirculatorVertexIterator& other) const;
+        CirculatorVertexIterator& operator++();
+        int operator*() const;
+        int getFace() const {
+            return face;
+        }
+    };
+
+    CirculatorVertexIterator beginCirculatorVertexIterator(int vertex);
+    CirculatorVertexIterator endCirculatorVertexIterator(int vertex);
 
     class VertexIterator {
     private:
@@ -75,12 +174,15 @@ public:
         VertexIterator& operator++();
         int operator*() const;
 
-        CirculatorFacesIterator beginFaceIterator();
-        CirculatorFacesIterator endFaceIterator();
+        CirculatorFacesIterator beginCirculatorFacesIterator();
+        CirculatorFacesIterator endCirculatorFacesIterator();
+
+        CirculatorVertexIterator beginCirculatorVertexIterator();
+        CirculatorVertexIterator endCirculatorVertexIterator();
     };
 
-    VertexIterator begin();
-    VertexIterator end();
+    VertexIterator beginVertexIterator();
+    VertexIterator endVertexIterator();
 
     class FacesIterator {
     private:
@@ -91,16 +193,15 @@ public:
         bool operator!=(const FacesIterator& other) const;
         FacesIterator& operator++();
         int operator*() const;
-
-        CirculatorFacesIterator beginFaceIterator();
-        CirculatorFacesIterator endFaceIterator();
     };
 
+    FacesIterator beginFacesIterator();
+    FacesIterator endFacesIterator();
 };
 
 class GeometricWorld //Generally used to create a singleton instance
 {
-  QVector<Point> _bBox;  // Bounding box // ou std::vector
+    QVector<vec3> _bBox;  // Bounding box // ou std::vector
 public :
   GeometricWorld();
   void drawAxis();
