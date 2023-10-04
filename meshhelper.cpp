@@ -51,9 +51,13 @@ void MeshHelper::loadFromOff(Mesh & mesh, const std::string & path) {
         return;
     }
 
+
+
     int nbVertices, nbTriangles, nbEdges;
 
     offFile >> nbVertices >> nbTriangles >> nbEdges;
+
+    std::cout << "Header :: nbVertices " << nbVertices << " nbTriangles " << nbTriangles << " nbEdges " << nbEdges << std::endl;
 
     for(int i = 0; i < nbVertices; i++) {
         double x, y, z;
@@ -106,7 +110,6 @@ void MeshHelper::loadFromOff(Mesh & mesh, const std::string & path) {
     }
 
     mesh.paintAdjacents();
-    mesh.visitAll(0);
 }
 
 void MeshHelper::generatePyramide() {

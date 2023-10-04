@@ -84,10 +84,18 @@ void MainWindow::on_Circular_clicked()
     std::cout << "elapsed time: " << elapsed_seconds.count() * 1000 << "ms for " << m.triangles.size() << " tri" << std::endl;
 }
 
-
-void MainWindow::on_Circle_clicked()
+void MainWindow::on_Custom_clicked()
 {
     auto & m = ui->widget->_geomWorld._mesh;
-    m.flipEdge(0, 6516);
+    // QUEEN m.flipEdge(0, 6516);
+    //m.flipEdge(0, 1);
+    std::cout << MathHelper::orientation(vec3(0, 0, 0), vec3(0, 1, 0), vec3(1, 1, 0)) << std::endl;
+}
+
+
+void MainWindow::on_Cube_2_clicked()
+{
+
+    MeshHelper::loadFromOff(ui->widget->_geomWorld._mesh, "Patron.off");
 }
 

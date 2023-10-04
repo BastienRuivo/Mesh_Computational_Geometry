@@ -35,7 +35,9 @@ private slots:
 
     void on_Circular_clicked();
 
-    void on_Circle_clicked();
+    void on_Custom_clicked();
+
+    void on_Cube_2_clicked();
 
 private:
     Ui::MainWindow *ui;

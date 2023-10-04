@@ -115,7 +115,13 @@ public:
     }
     static float triangleArea(const vec3 & a, const vec3 & b, const vec3 & c) {
         vec3 normal = (b - a).cross(c - a);
-        return normal.dot((b - a).cross(c - a));
+        return normal.dot((b - a).cross(c - a)) / 2.0f;
+    }
+    static int orientation(const vec3 & a, const vec3 & b, const vec3 & c) {
+        // return 1 if clockwise, 0 if collinear, -1 if counterclockwise
+        float val = (b.y - a.y) * (c.x - b.x) - (b.x - a.x) * (c.y - b.y);
+        if (val == 0) return 0;
+        return (val > 0)? 1: -1;
     }
 
 };

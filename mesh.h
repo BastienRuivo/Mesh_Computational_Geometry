@@ -112,16 +112,6 @@ public:
 
         // dont touche opposite + 2 on adjacents (see diagram)
 
-        std::cout << std::endl << "After" << std::endl;
-        std::cout << "v1 :: " << v1 << " [ " << triangles[v1 * 3] << ", " << triangles[v1 * 3 + 1] << ", " << triangles[v1 * 3 + 2] << "]" << std::endl;
-        std::cout << "adjacent v1 :: " << v1 << " [" << adjacents[v1 * 3] << ", " << adjacents[v1 * 3 + 1] << ", " << adjacents[v1 * 3 + 2] << "]" << std::endl;
-        std::cout << "v2 :: " << v2 << " [ " << triangles[v2 * 3] << ", " << triangles[v2 * 3 + 1] << ", " << triangles[v2 * 3 + 2] << "]" << std::endl;
-        std::cout << "adjacent v2 :: " << v2 << " [" << adjacents[v2 * 3] << ", " << adjacents[v2 * 3 + 1] << ", " << adjacents[v2 * 3 + 2] << "]" << std::endl;
-
-
-
-
-
 
     }
 

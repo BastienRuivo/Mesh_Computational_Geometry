@@ -52,6 +52,8 @@ vec3 Mesh::laplacian(int vi) {
         int vj = *it;
         int fj = it.getFace();
 
+        if(fj == -1) break;
+
 
         int vj_op = triangles[fj*3 + thirdIndex(vi, vj, fj)];
 
@@ -168,20 +170,6 @@ void Mesh::draw(GLuint primitive) {
         glColor3f(colors[triangles[i+2] * 3], colors[triangles[i+2] * 3 + 1], colors[triangles[i+2] * 3 + 2]);
         glPointDraw(vertices[triangles[i+2]]);
         glEnd();
-    }
-}
-
-void Mesh::visitAll(int pointToVisit) {
-    int t = vertexEnter[pointToVisit];
-
-    if(visited[t]) return;
-
-    visited[t] = true;
-    for(int i = 0; i < 3; i++) {
-        int v = adjacents[t*3 + i];
-        if(!visited[v] && (triangles[v*3] == pointToVisit || triangles[v*3 + 1] == pointToVisit || triangles[v*3 + 2] == pointToVisit)) {
-            visit(pointToVisit, v);
-        }
     }
 }
 
