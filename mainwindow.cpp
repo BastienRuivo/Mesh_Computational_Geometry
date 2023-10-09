@@ -89,13 +89,13 @@ void MainWindow::on_Custom_clicked()
     auto & m = ui->widget->_geomWorld._mesh;
     // QUEEN m.flipEdge(0, 6516);
     //m.flipEdge(0, 1);
-    std::cout << MathHelper::orientation(vec3(0, 0, 0), vec3(0, 1, 0), vec3(1, 1, 0)) << std::endl;
+    vec3 p = vec3(rand() / (double)RAND_MAX, 0, rand() / (double)RAND_MAX);
+    m.naiveInsertion(p);
 }
 
 
 void MainWindow::on_Cube_2_clicked()
 {
-
     MeshHelper::loadFromOff(ui->widget->_geomWorld._mesh, "Patron.off");
 }
 

@@ -198,6 +198,52 @@ bool Mesh::CirculatorFacesIterator::operator!=(const CirculatorFacesIterator& ot
     return M != other.M || vertex != other.vertex || face != other.face || firstFace != other.firstFace;
 }
 
+
+
+void Mesh::flipEdge(int v1, int v2) {
+    int v1_opposite = -1;
+    int v2_opposite = -1;
+    int local_op_v1 = -1;
+    int local_op_v2 = -1;
+
+    local_op_v1 = findOppositePoint(v1, v2);
+    local_op_v2 = findOppositePoint(v2, v1);
+
+    if(local_op_v1 == -1 || local_op_v2 == -1) {
+        std::cout << "Edge not found" << std::endl;
+        return;
+    }
+
+    v1_opposite = triangles[v1 * 3 + local_op_v1];
+    v2_opposite = triangles[v2 * 3 + local_op_v2];
+
+    local_op_v2 = localIndex(v2_opposite, v2);
+    triangles[v1 * 3 + (local_op_v1 + 2) % 3] = v2_opposite;
+    triangles[v2 * 3 + (local_op_v2 + 2) % 3] = v1_opposite;
+
+    int update = adjacents[v2 * 3 + (local_op_v2 + 1) % 3];
+    int lupdate_op = findOppositePoint(update, v2);
+    adjacents[update * 3 + lupdate_op] = v1;
+
+
+    update = adjacents[v1 + (local_op_v1 + 1) % 3];
+    lupdate_op = findOppositePoint(update, v1);
+    adjacents[update * 3 + lupdate_op] = v2;
+
+
+
+
+    adjacents[v1 * 3 + local_op_v1] = adjacents[v2 * 3 + (local_op_v2 + 1) % 3];
+    adjacents[v2 * 3 + local_op_v2] = adjacents[v1 * 3 + (local_op_v1 + 1) % 3];
+
+    adjacents[v1 * 3 + (local_op_v1 + 1) % 3] = v2;
+    adjacents[v2 * 3 + (local_op_v2 + 1) % 3] = v1;
+
+
+    // dont touche opposite + 2 on adjacents (see diagram)
+
+
+}
 Mesh::CirculatorFacesIterator& Mesh::CirculatorFacesIterator::operator++() {
     if(firstFace == -1) {
         firstFace = face;
