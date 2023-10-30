@@ -17,6 +17,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    int ah = 0;
 
 private slots:
     void on_Tetra_clicked();
@@ -38,6 +39,8 @@ private slots:
     void on_Custom_clicked();
 
     void on_Cube_2_clicked();
+
+    void on_Colors_clicked();
 
 private:
     Ui::MainWindow *ui;

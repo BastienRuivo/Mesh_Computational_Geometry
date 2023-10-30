@@ -74,7 +74,17 @@ void MainWindow::on_Circular_clicked()
         m.colors[3*v] =  l.x;
         m.colors[3*v+1] = l.y;
         m.colors[3*v+2] = l.z;
+
+//        for(auto itf = it.beginCirculatorFacesIterator(); itf != it.endCirculatorFacesIterator(); ++itf) {
+//            int sommet = *it;
+//            int face = *itf;
+//        }
     }
+
+//    for(auto it = m.beginFacesIterator(); it != m.endFacesIterator(); ++it) {
+//        int v = *it;
+//        std::cout << "F :: " << v / 3 <<  " :: V :: " << m.triangles[v] << " " << m.triangles[v+1] << " " << m.triangles[v+2] << " :: A :: " << m.adjacents[v] << " " << m.adjacents[v+1] << " " << m.adjacents[v+2] << std::endl;
+//    }
 
 
 
@@ -84,18 +94,38 @@ void MainWindow::on_Circular_clicked()
     std::cout << "elapsed time: " << elapsed_seconds.count() * 1000 << "ms for " << m.triangles.size() << " tri" << std::endl;
 }
 
+
+
 void MainWindow::on_Custom_clicked()
 {
     auto & m = ui->widget->_geomWorld._mesh;
-    // QUEEN m.flipEdge(0, 6516);
+    //QUEEN m.flipEdge(0, 6516);
     //m.flipEdge(0, 1);
-    vec3 p = vec3(rand() / (double)RAND_MAX, 0, rand() / (double)RAND_MAX);
-    m.naiveInsertion(p);
-}
 
+    std::vector<vec3> points = {
+        vec3(1, -1, 0),
+        vec3(-1, -0.5, 0)
+    };
+
+    for(int i = 0; i < 100; i++) {
+        vec3 p(MathHelper::randFloat(-1, 2), MathHelper::randFloat(-1, 2), 0);
+        m.naiveInsertion(p);
+
+    }
+
+
+//    vec3 p = points[ah];
+//    ah = (ah + 1) % points.size();
+}
 
 void MainWindow::on_Cube_2_clicked()
 {
     MeshHelper::loadFromOff(ui->widget->_geomWorld._mesh, "Patron.off");
+}
+
+
+void MainWindow::on_Colors_clicked()
+{
+    ui->widget->param.toggleColors();
 }
 

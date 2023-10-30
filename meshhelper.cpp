@@ -59,10 +59,22 @@ void MeshHelper::loadFromOff(Mesh & mesh, const std::string & path) {
 
     std::cout << "Header :: nbVertices " << nbVertices << " nbTriangles " << nbTriangles << " nbEdges " << nbEdges << std::endl;
 
+    mesh.vertices.push_back(vec3(0.5, 0.5, -1));
+    mesh.colors.push_back(0.75);
+    mesh.colors.push_back(0.0);
+    mesh.colors.push_back(0.75);
+
     for(int i = 0; i < nbVertices; i++) {
         double x, y, z;
         offFile >> x >> y >> z;
         mesh.vertices.push_back(vec3(x, y, z));
+        mesh.colors.push_back(1.0);
+        mesh.colors.push_back(1.0);
+        mesh.colors.push_back(1.0);
+        if(mesh.aaBox[0].x > x) mesh.aaBox[0].x = x;
+        else if(mesh.aaBox[1].x < x) mesh.aaBox[1].x = x;
+        if(mesh.aaBox[0].y > y) mesh.aaBox[0].y = y;
+        else if(mesh.aaBox[1].y < y) mesh.aaBox[1].y = y;
     }
 
     std::string line;
@@ -85,9 +97,7 @@ void MeshHelper::loadFromOff(Mesh & mesh, const std::string & path) {
                 }
             } else {
                 if(nbTri == 3) {
-                    mesh.triangles.push_back(value);
-                } else {
-                    mesh.colors.push_back(value);
+                    mesh.triangles.push_back(value + 1);
                 }
             }
 
@@ -97,16 +107,6 @@ void MeshHelper::loadFromOff(Mesh & mesh, const std::string & path) {
         }
         //std::cout << "SIZE :: " << triangles.size() << std::endl;
         //std::cout << triangles[triangles.size()-3] << " " << triangles[triangles.size()-2] << " " << triangles[triangles.size()-1] << std::endl;
-    }
-
-    if(mesh.colors.size() != mesh.triangles.size()) {
-        mesh.colors.resize(mesh.triangles.size());
-        for(int i = 0; i < mesh.colors.size(); i+=3) {
-            float c = (float)(i + 1) / (mesh.triangles.size());
-            mesh.colors[i] = c;
-            mesh.colors[i+1] = c;
-            mesh.colors[i+2] = c;
-        }
     }
 
     mesh.paintAdjacents();
@@ -210,11 +210,6 @@ void MeshHelper::generateTetrahedron() {
     mesh.triangles.push_back(0);
     mesh.triangles.push_back(3);
     mesh.triangles.push_back(1);
-
-
-
-
-
 
     saveToOffFile(mesh, "Tetrahedron");
 }

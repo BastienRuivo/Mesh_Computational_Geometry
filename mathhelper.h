@@ -2,6 +2,8 @@
 #define MATHHELPER_H
 
 #include <math.h>
+#include <ostream>
+#include <iostream>
 
 
 class vec3
@@ -80,13 +82,15 @@ public:
     }
 
     inline vec3 cross(const vec3 & p) const {
-        return vec3(y * p.z - z * p.y,
-                     z * p.x - x * p.z,
-                     x * p.y - y * p.x);
+        return vec3(y * p.z  - z * p.y, z * p.x - x * p.z, x * p.y - y * p.x);
     }
-
     inline vec3 project(const vec3 & p) const {
         return p * (dot(p) / p.norm2());
+    }
+
+    friend std::ostream & operator<<(std::ostream & os, const vec3 & p) {
+        os << "(" << p.x << ", " << p.y << ", " << p.z << ")";
+        return os;
     }
 
 };
@@ -95,27 +99,22 @@ class MathHelper {
 public:
     static bool isInTriangle(const vec3 & p, const vec3 & a, const vec3 & b, const vec3 & c){
         vec3 bar = getBarycentric(p, a, b, c);
-
-        if(bar.x >= 0 && bar.y >= 0 && bar.z >= 0 && bar.x <= 1 && bar.y <= 1 && bar.z <= 1) {
+        if((bar.x >= 0 && bar.y >= 0 && bar.z >= 0) || (bar.x <= 0 && bar.y <= 0 &&bar.z <= 0)) {
             return true;
         }
         return false;
     }
+
     static vec3 getBarycentric(const vec3 & p, const vec3 & A, const vec3 & B, const vec3 & C) {
-        // compute barycentric coordinates
-        float aABP = triangleArea(A, B, p);
-        float aBCP = triangleArea(B, C, p);
-        float aABC = triangleArea(A, B, C);
-
-        float alpha = aBCP / aABC;
-        float beta = aABP / aABC;
-        float gamma = 1.0f - alpha - beta;
-
-        return vec3(alpha, beta, gamma);
+        float areaABC = triangleArea(A, B, C);
+        float u = triangleArea(C, A, p) / areaABC;
+        float v = triangleArea(A, B, p) / areaABC;
+        float w = 1.0 - u - v;
+        return vec3(u, v, w);
     }
+
     static float triangleArea(const vec3 & a, const vec3 & b, const vec3 & c) {
-        vec3 normal = (b - a).cross(c - a);
-        return normal.dot((b - a).cross(c - a)) / 2.0f;
+        return 0.5 * (b - a).cross(c - b).z;
     }
     static int orientation(const vec3 & a, const vec3 & b, const vec3 & c) {
         // return 1 if clockwise, 0 if collinear, -1 if counterclockwise
@@ -124,6 +123,10 @@ public:
         return (val > 0)? 1: -1;
     }
 
+    static float randFloat(float min, float max)
+    {
+        return min + (float) rand() / ((float)RAND_MAX/(max-min));
+    }
 };
 
 #endif // MATHHELPER_H

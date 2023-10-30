@@ -1,5 +1,5 @@
 #include "mesh.h"
-
+#include <queue>
 GeometricWorld::GeometricWorld()
 {
     double width=0.5, depth=0.6, height=0.8;
@@ -19,10 +19,11 @@ void glPointDraw(const vec3 & p) {
 //Example with a bBox
 void GeometricWorld::drawWorld(const Parameters & param) {
     if(param.wireframe()) {
-        _mesh.draw(GL_LINE_STRIP);
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     } else {
-        _mesh.draw(GL_TRIANGLES);
+        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
     }
+    _mesh.draw(param.colors());
 }
 
 //Example with a wireframe bBox
@@ -96,7 +97,6 @@ void Mesh::clear() {
     colors.clear();
 
     adjacents.clear();
-    visited.clear();
 }
 
 std::pair<int, int> makeEdge(int ti, int tj) {
@@ -108,13 +108,16 @@ std::pair<int, int> makeEdge(int ti, int tj) {
 }
 
 void Mesh::paintAdjacents() {
+
     adjacents.clear();
     vertexEnter.clear();
+
+
     // fill the adjacents map wich contains the adjacent triangles of each triangle
 
     std::map<std::pair<int, int>, std::pair<int, int>> map;
 
-    vertexEnter.resize(vertices.size());
+    vertexEnter.resize(vertices.size(), -1);
 
     adjacents.resize(triangles.size(), -1);
 
@@ -145,45 +148,49 @@ void Mesh::paintAdjacents() {
         }
     }
 
-//    for (int var = 0; var < adjacents.size(); var+=3) {
-//        std::cout << "for triangle [" << triangles[var] << " " << triangles[var+1] << " " << triangles[var+2] << "] :: [" << adjacents[var] << " " << adjacents[var+1] << " " << adjacents[var+2] << "]" << std::endl;
-//    }
+    std::vector<std::pair<int, int>> convexe;
+    for (int var = 0; var < adjacents.size(); var+=3) {
+        for(int lid = 0; lid < 3; lid++) {
+            if(adjacents[var+lid] == -1) {
+                convexe.push_back(std::make_pair(var/3, lid));
+            }
+        }
+    }
+
+    for(auto & c : convexe) {
+        triangles.push_back(0);
+        triangles.push_back(triangles[c.first * 3 + (c.second + 2) % 3]);
+        triangles.push_back(triangles[c.first * 3 + (c.second + 1) % 3]);
+        std::cout << " f = " << (triangles.size() / 3) - 1 << " " << 0 << " " << triangles[c.first * 3 + (c.second + 1) % 3] << " " << triangles[c.first * 3 + (c.second + 2) % 3] << std::endl;
+    }
+
+    if(convexe.size() != 0) {
+        paintAdjacents();
+    }
 
     std::cout << "Number of edges : " << map.size() << std::endl;
-
-    visited.resize(triangles.size()/3, false);
 }
 
 Mesh::~Mesh() {
     // Destructor automatically called before a Mesh is destroyed (default strategy)
 }
 
-void Mesh::draw(GLuint primitive) {
+void Mesh::draw(bool col) {
     for (size_t i = 0; i < triangles.size(); i+=3)
     {
-        glBegin(primitive);
+        glBegin(GL_TRIANGLES);
+        if(!col) glColor3f(colorsTri[i % (colorsTri.size())], colorsTri[(i+1) % (colorsTri.size())], colorsTri[(i+2) % (colorsTri.size())]);
 
-        glColor3f(colors[triangles[i] * 3], colors[triangles[i] * 3 + 1], colors[triangles[i] * 3 + 2]);
+        if(col) glColor3f(colors[triangles[i] * 3], colors[triangles[i] * 3 + 1], colors[triangles[i] * 3 + 2]);
         glPointDraw(vertices[triangles[i]]);
-        glColor3f(colors[triangles[i+1] * 3], colors[triangles[i+1] * 3 + 1], colors[triangles[i+1] * 3 + 2]);
+
+        if(col) glColor3f(colors[triangles[i+1] * 3], colors[triangles[i+1] * 3 + 1], colors[triangles[i+1] * 3 + 2]);
         glPointDraw(vertices[triangles[i+1]]);
-        glColor3f(colors[triangles[i+2] * 3], colors[triangles[i+2] * 3 + 1], colors[triangles[i+2] * 3 + 2]);
+
+        if(col) glColor3f(colors[triangles[i+2] * 3], colors[triangles[i+2] * 3 + 1], colors[triangles[i+2] * 3 + 2]);
         glPointDraw(vertices[triangles[i+2]]);
+
         glEnd();
-    }
-}
-
-void Mesh::visit(int pointToVisit, int triangleToVisit) {
-    int t = triangleToVisit;
-    if(visited[t]) return;
-
-    visited[t] = true;
-
-    for(int i = 0; i < 3; i++) {
-        int v = adjacents[t*3 + i];
-        if(!visited[v] && (triangles[v*3] == pointToVisit || triangles[v*3 + 1] == pointToVisit || triangles[v*3 + 2] == pointToVisit)) {
-            visit(pointToVisit, v);
-        }
     }
 }
 
@@ -200,44 +207,56 @@ bool Mesh::CirculatorFacesIterator::operator!=(const CirculatorFacesIterator& ot
 
 
 
-void Mesh::flipEdge(int v1, int v2) {
-    int v1_opposite = -1;
-    int v2_opposite = -1;
-    int local_op_v1 = -1;
-    int local_op_v2 = -1;
+void Mesh::flipEdge(int t1, int t2) {
+    int t1_opposite = -1;
+    int t2_opposite = -1;
+    int local_op_t1 = -1;
+    int local_op_t2 = -1;
 
-    local_op_v1 = findOppositePoint(v1, v2);
-    local_op_v2 = findOppositePoint(v2, v1);
+    std::cout << "Flipping " << t1 << " " << t2 << std::endl;
 
-    if(local_op_v1 == -1 || local_op_v2 == -1) {
+    local_op_t1 = findOppositePoint(t1, t2);
+    local_op_t2 = findOppositePoint(t2, t1);
+
+    int t1o = triangles[t1 * 3 + (local_op_t1 + 2) % 3];
+    int t2o = triangles[t2 * 3 + (local_op_t2 + 2) % 3];
+
+    if(local_op_t1 == -1 || local_op_t2 == -1) {
         std::cout << "Edge not found" << std::endl;
         return;
     }
+    int update_t2 = adjacents[t2 * 3 + (local_op_t2 + 1) % 3];
+    int update_t1 = adjacents[t1 * 3 + (local_op_t1 + 1) % 3];
 
-    v1_opposite = triangles[v1 * 3 + local_op_v1];
-    v2_opposite = triangles[v2 * 3 + local_op_v2];
+    int lupdate_op_t2 = findOppositePoint(update_t2, t2);
+    int lupdate_op_t1 = findOppositePoint(update_t1, t1);
 
-    local_op_v2 = localIndex(v2_opposite, v2);
-    triangles[v1 * 3 + (local_op_v1 + 2) % 3] = v2_opposite;
-    triangles[v2 * 3 + (local_op_v2 + 2) % 3] = v1_opposite;
+    if(lupdate_op_t2 == -1 || lupdate_op_t1 == -1) {
+        std::cout << "Edge not found NEIGHBORING" << std::endl;
+        return;
+    }
 
-    int update = adjacents[v2 * 3 + (local_op_v2 + 1) % 3];
-    int lupdate_op = findOppositePoint(update, v2);
-    adjacents[update * 3 + lupdate_op] = v1;
+    t1_opposite = triangles[t1 * 3 + local_op_t1];
+    t2_opposite = triangles[t2 * 3 + local_op_t2];
 
-
-    update = adjacents[v1 + (local_op_v1 + 1) % 3];
-    lupdate_op = findOppositePoint(update, v1);
-    adjacents[update * 3 + lupdate_op] = v2;
-
+    local_op_t2 = localIndex(t2_opposite, t2);
+    triangles[t1 * 3 + (local_op_t1 + 2) % 3] = t2_opposite;
+    triangles[t2 * 3 + (local_op_t2 + 2) % 3] = t1_opposite;
 
 
+    adjacents[update_t2 * 3 + lupdate_op_t2] = t1;
 
-    adjacents[v1 * 3 + local_op_v1] = adjacents[v2 * 3 + (local_op_v2 + 1) % 3];
-    adjacents[v2 * 3 + local_op_v2] = adjacents[v1 * 3 + (local_op_v1 + 1) % 3];
 
-    adjacents[v1 * 3 + (local_op_v1 + 1) % 3] = v2;
-    adjacents[v2 * 3 + (local_op_v2 + 1) % 3] = v1;
+    adjacents[update_t1 * 3 + lupdate_op_t1] = t2;
+
+    adjacents[t1 * 3 + local_op_t1] = adjacents[t2 * 3 + (local_op_t2 + 1) % 3];
+    adjacents[t2 * 3 + local_op_t2] = adjacents[t1 * 3 + (local_op_t1 + 1) % 3];
+
+    adjacents[t1 * 3 + (local_op_t1 + 1) % 3] = t2;
+    adjacents[t2 * 3 + (local_op_t2 + 1) % 3] = t1;
+
+    vertexEnter[t1o] = t2;
+    vertexEnter[t2o] = t1;
 
 
     // dont touche opposite + 2 on adjacents (see diagram)
@@ -249,12 +268,10 @@ Mesh::CirculatorFacesIterator& Mesh::CirculatorFacesIterator::operator++() {
         firstFace = face;
     }
 
-    int localVertexIndex = -1;
-    for(int i = 0; i < 3; i++) {
-        if(M->triangles[face*3 + i] == vertex) {
-            localVertexIndex = i;
-            break;
-        }
+    int localVertexIndex = M->localIndex(vertex, face);
+    if(localVertexIndex == -1) {
+        std::cout << "CANT FIND NEXT" << std::endl;
+        return * this;
     }
 
     face = M->adjacents[face * 3 + ((localVertexIndex + 2) % 3)];
@@ -290,12 +307,14 @@ Mesh::CirculatorVertexIterator& Mesh::CirculatorVertexIterator::operator++() {
         firstFace = face;
     }
 
-    int localVertexIndex = -1;
-    for(int i = 0; i < 3; i++) {
-        if(M->triangles[face*3 + i] == vertex) {
-            localVertexIndex = i;
-            break;
-        }
+    int localVertexIndex = M->localIndex(vertex, face);
+
+
+    std::cout << "SOMMET = " << vertex << " F = " << face << " :: [" << M->triangles[face*3] << " " << M->triangles[face*3+1] << " " << M->triangles[face*3+2] << "] :: [" << M->adjacents[face*3] << " " << M->adjacents[face*3+1] << " " << M->adjacents[face*3+2] << "]" << std::endl;
+
+    if(localVertexIndex == -1) {
+        std::cout << "CANT FIND NEXT" << std::endl;
+        exit(0);
     }
 
     face = M->adjacents[face * 3 + ((localVertexIndex + 2) % 3)];
@@ -303,13 +322,7 @@ Mesh::CirculatorVertexIterator& Mesh::CirculatorVertexIterator::operator++() {
 }
 
 int Mesh::CirculatorVertexIterator::operator*() const  {
-    int localVertexIndex = -1;
-    for(int i = 0; i < 3; i++) {
-        if(M->triangles[face*3 + i] == vertex) {
-            localVertexIndex = i;
-            break;
-        }
-    }
+    int localVertexIndex = M->localIndex(vertex, face);
     return M->triangles[face*3 + ((localVertexIndex + 1) % 3)];
 }
 
@@ -388,58 +401,86 @@ Mesh::FacesIterator Mesh::beginFacesIterator() {
 Mesh::FacesIterator Mesh::endFacesIterator() {
     return Mesh::FacesIterator(this, triangles.size());
 }
-
+float epsilon = 0.0001;
 int Mesh::findTriangle(const vec3 & p) {
-    for(int i = 0; i < triangles.size(); i+=3) {
-        vec3 p1 = vertices[triangles[i]];
-        vec3 p2 = vertices[triangles[i+1]];
-        vec3 p3 = vertices[triangles[i+2]];
+
+    if(p.x < aaBox[0].x || p.x > aaBox[1].x || p.y < aaBox[0].y || p.y > aaBox[1].y) {
+        return -1;
+    }
+
+
+    for(auto it = beginFacesIterator(); it != endFacesIterator(); ++it) {
+        int f = *it;
+        vec3 p1 = vertices[triangles[f]];
+        vec3 p2 = vertices[triangles[f+1]];
+        vec3 p3 = vertices[triangles[f+2]];
+        if(p.z <= p1.z - epsilon || p.z <= p2.z - epsilon || p.z <= p3.z - epsilon || p.z >= p1.z + epsilon || p.z >= p2.z + epsilon || p.z >= p3.z + epsilon) {
+            //std::cout << "skip " << f/3 << " for " << p.z << " with " << p1.z << " " << p2.z << " " << p3.z << std::endl;
+            continue;
+        }
 
         if(MathHelper::isInTriangle(p, p1, p2, p3)) {
-            return i;
+            //std::cout << " is in " << f/3 << " with " << " " << p1.z << " " << p2.z << " " << p3.z << std::endl;
+            return f/3;
         }
     }
     return -1;
 }
 
-void Mesh::addPointToTriangle(const vec3 & p, int triangleIndex) {
+void Mesh::addPointToTriangle(const vec3 & p, int t0) {
+
     this->vertices.push_back(p);
-    this->vertexEnter.push_back(triangleIndex);
 
-    int v0 = triangles[triangleIndex*3];
-    int v1 = triangles[triangleIndex*3+1];
-    int v2 = triangles[triangleIndex*3+2];
-    int n = this->vertices.size() - 1;
+    this->colors.push_back((float)rand() / (float)RAND_MAX);
+    this->colors.push_back((float)rand() / (float)RAND_MAX);
+    this->colors.push_back((float)rand() / (float)RAND_MAX);
 
-    triangles[triangleIndex*3] = vertices.size() - 1;
+    int v0 = triangles[t0 * 3];
+    int v1 = triangles[t0 * 3 + 1];
+    int v2 = triangles[t0 * 3 + 2];
 
-    triangles.push_back(n);
+    int vn = vertices.size() - 1;
+    int t1 = triangles.size() / 3;
+    int t2 = triangles.size() / 3 + 1;
+
+    int a0 = adjacents[t0 * 3];
+    int a1 = adjacents[t0 * 3 + 1];
+    int a2 = adjacents[t0 * 3 + 2];
+
+    int a1_op = findOppositePoint(a1, t0);
+    int a2_op = findOppositePoint(a2, t0);
+
+    adjacents[a1 * 3 + a1_op] = t2;
+    adjacents[a2 * 3 + a2_op] = t1;
+
+    triangles[t0 * 3] = vn;
+
+    adjacents[t0 * 3 + 1] = t2;
+    adjacents[t0 * 3 + 2] = t1;
+
+
+    triangles.push_back(vn);
     triangles.push_back(v0);
     triangles.push_back(v1);
 
-    triangles.push_back(n);
+    adjacents.push_back(a2);
+    adjacents.push_back(t0);
+    adjacents.push_back(t2);
+
+    triangles.push_back(vn);
     triangles.push_back(v2);
     triangles.push_back(v0);
 
-    // adjencies
-
-    int a0 = adjacents[triangleIndex*3];
-    int a1 = adjacents[triangleIndex*3+1];
-    int a2 = adjacents[triangleIndex*3+2];
-
-    int tn0 = triangles.size() / 3 - 2;
-    int tn1 = triangles.size() / 3 - 1;
-
-    adjacents[triangleIndex*3 + 1] = tn1;
-    adjacents[triangleIndex*3 + 2] = tn0;
-
-    adjacents.push_back(a2);
-    adjacents.push_back(triangleIndex);
-    adjacents.push_back(tn1);
-
     adjacents.push_back(a1);
-    adjacents.push_back(tn0);
-    adjacents.push_back(triangleIndex);
+    adjacents.push_back(t1);
+    adjacents.push_back(t0);
 
+
+    this->vertexEnter.push_back(t0);
+    this->vertexEnter[v0] = t1;
+    this->vertexEnter[v1] = t1;
+    this->vertexEnter[v2] = t2;
+
+    std::cout << "t0 = " << t0 << " t1 = " << t1 << " t2 = " << t2 << std::endl;
 }
 

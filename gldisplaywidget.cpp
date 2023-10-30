@@ -36,13 +36,15 @@ void GLDisplayWidget::paintGL(){
     // Center the camera
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(0,0,5,  0,0,0,   0,1,0); //gluLookAt(eye, center, up)  //deprecated
+    gluLookAt(0.5,0.5,5,  0,0,0,   0,1,0); //gluLookAt(eye, center, up)  //deprecated
                                        // Returns a 4x4 matrix that transforms world coordinates to eye coordinates.
     // Translation
     glTranslated(_X, _Y, _Z);
 
+
     // Rotation
-    glRotatef(_angle, 1.0f, 1.0f, 0.0f);
+    glRotatef(_angleX, 0.0f, 1.0f, 0.0f);
+    glRotatef(_angleY, 1.0f, 0.0f, 0.0f);
 
     // Color for your _geomWorld
     glColor3f(0, 1 ,0);
@@ -75,11 +77,17 @@ void GLDisplayWidget::mousePressEvent(QMouseEvent *event)
 void GLDisplayWidget::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - _lastPosMouse.x();
-    // int dy = event->y() - lastPosMouse.y();
+    int dy = event->y() - _lastPosMouse.y();
 
-    if( event != NULL )
+    if( event != NULL)
     {
-        _angle += dx;
+        if(event->buttons() == Qt::LeftButton) {
+            _angleX += dx;
+            _angleY += dy;
+        } else if(event->buttons() == Qt::RightButton) {
+            _X += dx/100.;
+            _Y -= dy/100.;
+        }
         _lastPosMouse = event->pos();
 
         update();
